@@ -8,18 +8,18 @@ const client = createThirdwebClient({
 
 // Define Monad Testnet
 const monadTestnet = defineChain({
-  id: 41454,
+  id: 10143,
   name: "Monad Testnet",
   nativeCurrency: {
     name: "Monad",
     symbol: "MON",
     decimals: 18,
   },
-  rpc: "https://testnet-rpc.monad.xyz",
+  rpc: "https://10143.rpc.thirdweb.com/$19c0ffb997d9e0d9ea54ddc15ebaff6f",
   blockExplorers: [
     {
       name: "Monad Explorer",
-      url: "https://testnet-explorer.monad.xyz",
+      url: "https://monad-testnet.socialscan.io",
     },
   ],
   testnet: true,
