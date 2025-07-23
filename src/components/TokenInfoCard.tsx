@@ -2,7 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTokenInfo, useTokenSupply } from "@/hooks/useMonadAPI";
-import { formatEther } from "ethers";
 
 interface TokenInfoCardProps {
   contractAddress: string;
@@ -42,8 +41,9 @@ export function TokenInfoCard({ contractAddress, className }: TokenInfoCardProps
 
   const formatSupply = (supplyValue: string) => {
     try {
-      const formatted = formatEther(supplyValue);
-      return parseFloat(formatted).toLocaleString();
+      const divisor = Math.pow(10, 18); // Wei to Token conversion
+      const formatted = (parseFloat(supplyValue) / divisor);
+      return formatted.toLocaleString();
     } catch {
       return supplyValue;
     }

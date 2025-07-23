@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useTokenBalances, useEtherBalance } from "@/hooks/useMonadAPI";
 import { useActiveAccount } from "thirdweb/react";
-import { formatEther } from "ethers";
 
 export function WalletBalances() {
   const account = useActiveAccount();
@@ -41,8 +40,9 @@ export function WalletBalances() {
 
   const formatEtherBalance = (balance: string) => {
     try {
-      const formatted = formatEther(balance);
-      return parseFloat(formatted).toFixed(6);
+      const divisor = Math.pow(10, 18); // Wei to Ether conversion
+      const formatted = (parseFloat(balance) / divisor).toFixed(6);
+      return parseFloat(formatted).toString();
     } catch {
       return balance;
     }
