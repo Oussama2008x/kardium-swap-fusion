@@ -67,7 +67,7 @@ export function useTokenBalances(address: string | null) {
 
   useEffect(() => {
     fetchBalances();
-  }, [address]);
+  }, [address, toast]);
 
   return { balances, loading, error, refetch: fetchBalances };
 }
@@ -102,7 +102,7 @@ export function useEtherBalance(address: string | null) {
 
   useEffect(() => {
     fetchBalance();
-  }, [address]);
+  }, [address, toast]);
 
   return { balance, loading, error, refetch: fetchBalance };
 }

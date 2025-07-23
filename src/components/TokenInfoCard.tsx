@@ -8,7 +8,7 @@ interface TokenInfoCardProps {
   className?: string;
 }
 
-export function TokenInfoCard({ contractAddress, className }: TokenInfoCardProps) {
+function TokenInfoCard({ contractAddress, className }: TokenInfoCardProps) {
   const { tokenInfo, loading: infoLoading, error: infoError } = useTokenInfo(contractAddress);
   const { supply, loading: supplyLoading, error: supplyError } = useTokenSupply(contractAddress);
 
@@ -138,3 +138,5 @@ export function TokenInfoCard({ contractAddress, className }: TokenInfoCardProps
     </Card>
   );
 }
+
+export { TokenInfoCard };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, ChevronDown, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,13 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { WalletBalances } from "@/components/WalletBalances";
-import { TokenInfoCard } from "@/components/TokenInfoCard";
+
+// Lazy load components to avoid loading issues
+const WalletBalances = lazy(() => import("@/components/WalletBalances").then(module => ({ default: module.WalletBalances })));
+const TokenInfoCard = lazy(() => import("@/components/TokenInfoCard").then(module => ({ default: module.TokenInfoCard })));
 
 const tokens = [
   { symbol: "MONAD", name: "Monad", contractAddress: "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701" },
@@ -30,6 +33,29 @@ const tokens = [
   { symbol: "WETH", name: "Wrapped Ethereum", contractAddress: "0xb5a30b0fdc5ea94a52fdc42e3e9760cb8449fb37" },
   { symbol: "WBTC", name: "Wrapped Bitcoin", contractAddress: "0x6bb379a2056d1304e73012b99338f8f581ee2e18" }
 ];
+
+// Loading component for Suspense fallback
+const LoadingCard = () => (
+  <Card>
+    <CardHeader>
+      <Skeleton className="h-6 w-32" />
+    </CardHeader>
+    <CardContent className="space-y-3">
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
+    </CardContent>
+  </Card>
+);
+
+// Error fallback component
+const ErrorFallback = ({ message }: { message: string }) => (
+  <Card>
+    <CardContent className="pt-6">
+      <p className="text-center text-muted-foreground">{message}</p>
+    </CardContent>
+  </Card>
+);
 
 export default function Swap() {
   const { t } = useTranslation();
@@ -213,17 +239,21 @@ export default function Swap() {
 
             {/* Token Information Card */}
             {selectedTokenForInfo && (
-              <TokenInfoCard 
-                contractAddress={selectedTokenForInfo}
-                className="bg-gradient-card shadow-card border-border/50"
-              />
+              <Suspense fallback={<LoadingCard />}>
+                <TokenInfoCard 
+                  contractAddress={selectedTokenForInfo}
+                  className="bg-gradient-card shadow-card border-border/50"
+                />
+              </Suspense>
             )}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Wallet Balances */}
-            <WalletBalances />
+            <Suspense fallback={<LoadingCard />}>
+              <WalletBalances />
+            </Suspense>
             
             {/* Quick Info */}
             <Card className="bg-gradient-card shadow-card border-border/50">

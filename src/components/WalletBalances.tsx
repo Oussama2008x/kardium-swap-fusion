@@ -6,7 +6,7 @@ import { RefreshCw } from "lucide-react";
 import { useTokenBalances, useEtherBalance } from "@/hooks/useMonadAPI";
 import { useActiveAccount } from "thirdweb/react";
 
-export function WalletBalances() {
+function WalletBalances() {
   const account = useActiveAccount();
   const address = account?.address;
 
@@ -132,3 +132,5 @@ export function WalletBalances() {
     </Card>
   );
 }
+
+export { WalletBalances };
