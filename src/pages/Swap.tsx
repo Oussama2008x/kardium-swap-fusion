@@ -15,21 +15,20 @@ import { WalletBalances } from "@/components/WalletBalances";
 import { TokenInfoCard } from "@/components/TokenInfoCard";
 
 const tokens = [
-  { symbol: "MONAD", name: "Monad", contractAddress: "0x201eba5cc46d216ce6dc03f6a759e8e766e956ae" },
-  { symbol: "KARDIUM", name: "Kardium", contractAddress: "0x9bcd29c774ba0ce762fc56fde806bd43ed9786da" },
-  { symbol: "YAKI", name: "Yaki", contractAddress: "0x34d1ae6076aee4072f54e1156d2e507dd564a355" },
-  { symbol: "GMON", name: "GMON", contractAddress: "0xe0fa8195ae92b9c473c0c0c12c2d6bcbd245de47" },
-  { symbol: "SHMON", name: "SHMON", contractAddress: "0x0bd4ece3939ce5163d8f4ede3740987107c6f586" },
-  { symbol: "WMON", name: "Wrapped MON", contractAddress: "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae" },
-  { symbol: "USDC", name: "USD Coin", contractAddress: "0x63a9975ba31b0b9626b34300f7f627147df1f526" },
-  { symbol: "USDT", name: "Tether USD", contractAddress: "0x198ef1ec325a96cc354c7266a038be8b5c558f67" },
-  { symbol: "USDM", name: "USD Monad", contractAddress: "0xbe18aad013699c1cdd903cb3e6d596ef99c37650" },
-  { symbol: "CHOG", name: "CHOG", contractAddress: "0x4cd096de94913d2e57235dde8869afde791327f1" },
-  { symbol: "DAK", name: "DAK", contractAddress: "0x8f9d3e27a516c08b2357d94f02ca91b562c3f1a9" },
-  { symbol: "MOON", name: "Moon", contractAddress: "0x742536751a516c08b2357d94f02ca91b562c3f1a9" },
-  { symbol: "BEAN", name: "Bean", contractAddress: "0x85e40f4cb697bae8740590c1327f1f64d272fdd1" },
-  { symbol: "WETH", name: "Wrapped Ethereum", contractAddress: "0xbe503e0b679e74327fdd1be503e0b679e74327fd" },
-  { symbol: "WBTC", name: "Wrapped Bitcoin", contractAddress: "0x8f9d3e27a516c08b2357d94f02ca91b562c3f1a8" }
+  { symbol: "MONAD", name: "Monad", contractAddress: "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701" },
+  { symbol: "YAKI", name: "Yaki", contractAddress: "0xfe140e1dce99be9f4f15d657cd9b7bf622270c50" },
+  { symbol: "GMON", name: "GMON", contractAddress: "0xaeef2f6b429cb59c9b2d7bb2141ada993e8571c3" },
+  { symbol: "SHMON", name: "SHMON", contractAddress: "0x3a98250f98dd388c211206983453837c8365bdc1" },
+  { symbol: "WMON", name: "Wrapped MON", contractAddress: "0x760afe86e5de5fa0ee542fc7b7b713e1c5425701" },
+  { symbol: "USDC", name: "USD Coin", contractAddress: "0xf817257fed379853cde0fa4f97ab987181b1e5ea" },
+  { symbol: "USDT", name: "Tether USD", contractAddress: "0x88b8e2161dedc77ef4ab7585569d2415a1c1055d" },
+  { symbol: "USDM", name: "USD Monad", contractAddress: "0x5d876d73f4441d5f2438b1a3e2a51771b337f27a" },
+  { symbol: "CHOG", name: "CHOG", contractAddress: "0xe0590015a873bf326bd645c3e1266d4db41c4e6b" },
+  { symbol: "DAK", name: "DAK", contractAddress: "0x0f0bdebf0f83cd1ee3974779bcb7315f9808c714" },
+  { symbol: "MOON", name: "Moon", contractAddress: "0x4aa50e8208095d9594d18e8e3008abb811125dce" },
+  { symbol: "BEAN", name: "Bean", contractAddress: "0x268e4e24e0051ec27b3d27a95977e71ce6875a05" },
+  { symbol: "WETH", name: "Wrapped Ethereum", contractAddress: "0xb5a30b0fdc5ea94a52fdc42e3e9760cb8449fb37" },
+  { symbol: "WBTC", name: "Wrapped Bitcoin", contractAddress: "0x6bb379a2056d1304e73012b99338f8f581ee2e18" }
 ];
 
 export default function Swap() {
