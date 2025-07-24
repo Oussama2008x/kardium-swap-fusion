@@ -177,6 +177,41 @@ export function useTokenSupply(contractAddress: string | null) {
   return { supply, loading, error };
 }
 
+// Hook for getting specific token balances
+export function useSpecificTokenBalances(address: string | null, contractAddresses: string[]) {
+  const [balances, setBalances] = useState<{ [contractAddress: string]: string }>({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const fetchSpecificBalances = async () => {
+    if (!address || contractAddresses.length === 0) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const tokenBalances = await MonadAPI.getMultipleTokenBalances(address, contractAddresses);
+      setBalances(tokenBalances);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch specific token balances';
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSpecificBalances();
+  }, [address, contractAddresses.join(','), toast]);
+
+  return { balances, loading, error, refetch: fetchSpecificBalances };
+}
+
 // Generic hook for transaction operations
 export function useTransactionOperations() {
   const [loading, setLoading] = useState(false);

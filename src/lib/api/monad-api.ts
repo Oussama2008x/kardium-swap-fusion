@@ -149,6 +149,28 @@ export class MonadAPI {
     return this.makeRequest<TokenBalance[]>(url);
   }
 
+  // Get Multiple Token Balances for specific contract addresses
+  static async getMultipleTokenBalances(
+    address: string,
+    contractAddresses: string[]
+  ): Promise<{ [contractAddress: string]: string }> {
+    const balancePromises = contractAddresses.map(async (contractAddress) => {
+      try {
+        const balance = await this.getTokenBalance(contractAddress, address);
+        return { contractAddress, balance };
+      } catch (error) {
+        console.warn(`Failed to fetch balance for ${contractAddress}:`, error);
+        return { contractAddress, balance: '0' };
+      }
+    });
+
+    const results = await Promise.all(balancePromises);
+    return results.reduce((acc, { contractAddress, balance }) => {
+      acc[contractAddress] = balance;
+      return acc;
+    }, {} as { [contractAddress: string]: string });
+  }
+
   // Get Token Info by Contract Address
   static async getTokenInfo(contractAddress: string): Promise<TokenInfo> {
     const url = this.buildUrl({

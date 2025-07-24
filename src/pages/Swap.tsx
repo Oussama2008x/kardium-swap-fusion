@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, ChevronDown, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,25 +13,25 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-// Lazy load components to avoid loading issues
-const WalletBalances = lazy(() => import("@/components/WalletBalances").then(module => ({ default: module.WalletBalances })));
-const TokenInfoCard = lazy(() => import("@/components/TokenInfoCard").then(module => ({ default: module.TokenInfoCard })));
+import { WalletBalances } from "@/components/WalletBalances";
+import { TokenInfoCard } from "@/components/TokenInfoCard";
+import { TokenBalancesGrid } from "@/components/TokenBalancesGrid";
 
 const tokens = [
-  { symbol: "MONAD", name: "Monad", contractAddress: "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701" },
-  { symbol: "YAKI", name: "Yaki", contractAddress: "0xfe140e1dce99be9f4f15d657cd9b7bf622270c50" },
-  { symbol: "GMON", name: "GMON", contractAddress: "0xaeef2f6b429cb59c9b2d7bb2141ada993e8571c3" },
-  { symbol: "SHMON", name: "SHMON", contractAddress: "0x3a98250f98dd388c211206983453837c8365bdc1" },
-  { symbol: "WMON", name: "Wrapped MON", contractAddress: "0x760afe86e5de5fa0ee542fc7b7b713e1c5425701" },
-  { symbol: "USDC", name: "USD Coin", contractAddress: "0xf817257fed379853cde0fa4f97ab987181b1e5ea" },
-  { symbol: "USDT", name: "Tether USD", contractAddress: "0x88b8e2161dedc77ef4ab7585569d2415a1c1055d" },
-  { symbol: "USDM", name: "USD Monad", contractAddress: "0x5d876d73f4441d5f2438b1a3e2a51771b337f27a" },
-  { symbol: "CHOG", name: "CHOG", contractAddress: "0xe0590015a873bf326bd645c3e1266d4db41c4e6b" },
-  { symbol: "DAK", name: "DAK", contractAddress: "0x0f0bdebf0f83cd1ee3974779bcb7315f9808c714" },
-  { symbol: "MOON", name: "Moon", contractAddress: "0x4aa50e8208095d9594d18e8e3008abb811125dce" },
-  { symbol: "BEAN", name: "Bean", contractAddress: "0x268e4e24e0051ec27b3d27a95977e71ce6875a05" },
-  { symbol: "WETH", name: "Wrapped Ethereum", contractAddress: "0xb5a30b0fdc5ea94a52fdc42e3e9760cb8449fb37" },
-  { symbol: "WBTC", name: "Wrapped Bitcoin", contractAddress: "0x6bb379a2056d1304e73012b99338f8f581ee2e18" }
+  { symbol: "MONAD", name: "Monad", contractAddress: "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701", decimals: 18 },
+  { symbol: "YAKI", name: "Yaki", contractAddress: "0xfe140e1dce99be9f4f15d657cd9b7bf622270c50", decimals: 18 },
+  { symbol: "GMON", name: "GMON", contractAddress: "0xaeef2f6b429cb59c9b2d7bb2141ada993e8571c3", decimals: 18 },
+  { symbol: "SHMON", name: "SHMON", contractAddress: "0x3a98250f98dd388c211206983453837c8365bdc1", decimals: 18 },
+  { symbol: "WMON", name: "Wrapped MON", contractAddress: "0x760afe86e5de5fa0ee542fc7b7b713e1c5425701", decimals: 18 },
+  { symbol: "USDC", name: "USD Coin", contractAddress: "0xf817257fed379853cde0fa4f97ab987181b1e5ea", decimals: 6 },
+  { symbol: "USDT", name: "Tether USD", contractAddress: "0x88b8e2161dedc77ef4ab7585569d2415a1c1055d", decimals: 6 },
+  { symbol: "USDM", name: "USD Monad", contractAddress: "0x5d876d73f4441d5f2438b1a3e2a51771b337f27a", decimals: 18 },
+  { symbol: "CHOG", name: "CHOG", contractAddress: "0xe0590015a873bf326bd645c3e1266d4db41c4e6b", decimals: 18 },
+  { symbol: "DAK", name: "DAK", contractAddress: "0x0f0bdebf0f83cd1ee3974779bcb7315f9808c714", decimals: 18 },
+  { symbol: "MOON", name: "Moon", contractAddress: "0x4aa50e8208095d9594d18e8e3008abb811125dce", decimals: 18 },
+  { symbol: "BEAN", name: "Bean", contractAddress: "0x268e4e24e0051ec27b3d27a95977e71ce6875a05", decimals: 18 },
+  { symbol: "WETH", name: "Wrapped Ethereum", contractAddress: "0xb5a30b0fdc5ea94a52fdc42e3e9760cb8449fb37", decimals: 18 },
+  { symbol: "WBTC", name: "Wrapped Bitcoin", contractAddress: "0x6bb379a2056d1304e73012b99338f8f581ee2e18", decimals: 8 }
 ];
 
 // Loading component for Suspense fallback
@@ -101,9 +101,16 @@ export default function Swap() {
           </p>
         </div>
 
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Swap Interface */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Token Balances Grid */}
+          <TokenBalancesGrid 
+            tokens={tokens} 
+            className="bg-gradient-card shadow-card border-border/50"
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Swap Interface */}
+            <div className="lg:col-span-2 space-y-6">
             <Card className="bg-gradient-card shadow-card border-border/50">
               <CardHeader>
                 <CardTitle className="text-center">{t('swap.title', 'Swap Tokens')}</CardTitle>
@@ -239,21 +246,17 @@ export default function Swap() {
 
             {/* Token Information Card */}
             {selectedTokenForInfo && (
-              <Suspense fallback={<LoadingCard />}>
-                <TokenInfoCard 
-                  contractAddress={selectedTokenForInfo}
-                  className="bg-gradient-card shadow-card border-border/50"
-                />
-              </Suspense>
+              <TokenInfoCard 
+                contractAddress={selectedTokenForInfo}
+                className="bg-gradient-card shadow-card border-border/50"
+              />
             )}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Wallet Balances */}
-            <Suspense fallback={<LoadingCard />}>
-              <WalletBalances />
-            </Suspense>
+            <WalletBalances />
             
             {/* Quick Info */}
             <Card className="bg-gradient-card shadow-card border-border/50">
@@ -310,6 +313,7 @@ export default function Swap() {
                 </div>
               </CardContent>
             </Card>
+          </div>
           </div>
         </div>
       </div>
