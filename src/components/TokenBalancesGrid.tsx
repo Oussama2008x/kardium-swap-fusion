@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useSpecificTokenBalances } from "@/hooks/useMonadAPI";
 import { useActiveAccount } from "thirdweb/react";
+import { TokenIcon } from "@/components/TokenIcon";
 
 interface Token {
   symbol: string;
@@ -96,7 +97,7 @@ function TokenBalancesGrid({ tokens, className }: TokenBalancesGridProps) {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 rounded-full bg-gradient-primary"></div>
+                      <TokenIcon symbol={token.symbol} size={24} />
                       <span className="font-semibold text-sm">{token.symbol}</span>
                     </div>
                     {hasBalance && (

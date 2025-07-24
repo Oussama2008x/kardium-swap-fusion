@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, ChevronDown, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
 import { WalletBalances } from "@/components/WalletBalances";
 import { TokenInfoCard } from "@/components/TokenInfoCard";
 import { TokenBalancesGrid } from "@/components/TokenBalancesGrid";
+import { TokenIcon } from "@/components/TokenIcon";
 
 const tokens = [
   { symbol: "MONAD", name: "Monad", contractAddress: "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701", decimals: 18 },
@@ -68,16 +69,68 @@ export default function Swap() {
   const [selectedTokenForInfo, setSelectedTokenForInfo] = useState<string | null>(tokens[0].contractAddress);
 
   const handleFromTokenSelect = (token: typeof tokens[0]) => {
+    if (token.contractAddress === selectedToToken.contractAddress) {
+      // Swap tokens if same token is selected
+      setSelectedToToken(selectedFromToken);
+    }
     setSelectedFromToken(token);
     setShowFromTokenList(false);
     setSelectedTokenForInfo(token.contractAddress);
   };
 
   const handleToTokenSelect = (token: typeof tokens[0]) => {
+    if (token.contractAddress === selectedFromToken.contractAddress) {
+      // Swap tokens if same token is selected
+      setSelectedFromToken(selectedToToken);
+    }
     setSelectedToToken(token);
     setShowToTokenList(false);
     setSelectedTokenForInfo(token.contractAddress);
   };
+
+  // Calculate exchange rate (mock calculation for demo)
+  const calculateExchangeRate = (fromSymbol: string, toSymbol: string, amount: string) => {
+    if (!amount || !fromSymbol || !toSymbol) return "";
+    
+    // Mock exchange rates - in a real app, this would come from an API
+    const mockRates: { [key: string]: number } = {
+      'MONAD/USDC': 2.5,
+      'MONAD/USDT': 2.48,
+      'YAKI/USDC': 0.15,
+      'YAKI/USDT': 0.148,
+      'GMON/USDC': 1.2,
+      'WETH/USDC': 2400,
+      'WBTC/USDC': 43000,
+    };
+
+    const pair = `${fromSymbol}/${toSymbol}`;
+    const reversePair = `${toSymbol}/${fromSymbol}`;
+    
+    let rate = mockRates[pair];
+    if (!rate && mockRates[reversePair]) {
+      rate = 1 / mockRates[reversePair];
+    }
+    if (!rate) {
+      rate = 1; // Default 1:1 rate
+    }
+
+    const result = (parseFloat(amount) * rate).toFixed(6);
+    return result;
+  };
+
+  // Auto-calculate to amount when from amount changes
+  useEffect(() => {
+    if (fromAmount) {
+      const calculatedAmount = calculateExchangeRate(
+        selectedFromToken.symbol,
+        selectedToToken.symbol,
+        fromAmount
+      );
+      setToAmount(calculatedAmount);
+    } else {
+      setToAmount("");
+    }
+  }, [fromAmount, selectedFromToken.symbol, selectedToToken.symbol]);
 
   const handleSwapTokens = () => {
     const tempToken = selectedFromToken;
@@ -135,33 +188,37 @@ export default function Swap() {
                           variant="outline"
                           className="w-40 justify-between h-16 text-left bg-background hover:bg-accent"
                         >
-                          <div className="flex items-center space-x-2">
-                            <div className="w-6 h-6 rounded-full bg-gradient-primary"></div>
-                            <span className="font-medium">{selectedFromToken.symbol}</span>
-                          </div>
+                           <div className="flex items-center space-x-2">
+                             <TokenIcon symbol={selectedFromToken.symbol} size={24} />
+                             <span className="font-medium">{selectedFromToken.symbol}</span>
+                           </div>
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-80 p-0 bg-popover border border-border" align="start">
                         <div className="max-h-80 overflow-auto">
-                          {tokens.map((token) => (
-                            <button
-                              key={token.symbol}
-                              onClick={() => handleFromTokenSelect(token)}
-                              className="w-full px-4 py-3 text-left hover:bg-accent transition-colors flex items-center justify-between group"
-                            >
-                              <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 rounded-full bg-gradient-primary"></div>
-                                <div>
-                                  <div className="font-medium">{token.symbol}</div>
-                                  <div className="text-sm text-muted-foreground">{token.name}</div>
+                           {tokens
+                             .filter(token => token.contractAddress !== selectedToToken.contractAddress)
+                             .map((token) => (
+                             <button
+                               key={token.symbol}
+                               onClick={() => handleFromTokenSelect(token)}
+                               className="w-full px-4 py-3 text-left hover:bg-accent transition-colors flex items-center justify-between group"
+                             >
+                                <div className="flex items-center space-x-3">
+                                  <TokenIcon symbol={token.symbol} size={32} />
+                                  <div>
+                                    <div className="font-medium">{token.symbol}</div>
+                                    <div className="text-sm text-muted-foreground">{token.name}</div>
+                                  </div>
                                 </div>
-                              </div>
-                              <Badge variant="secondary" className="bg-purple-500/20 text-purple-600 border-purple-500/30">
-                                <Check className="h-3 w-3" />
-                              </Badge>
-                            </button>
-                          ))}
+                               {token.contractAddress === selectedFromToken.contractAddress && (
+                                 <Badge variant="secondary" className="bg-purple-500/20 text-purple-600 border-purple-500/30">
+                                   <Check className="h-3 w-3" />
+                                 </Badge>
+                               )}
+                             </button>
+                           ))}
                         </div>
                       </PopoverContent>
                     </Popover>
@@ -186,46 +243,51 @@ export default function Swap() {
                     {t('swap.to', 'To')}
                   </label>
                   <div className="flex space-x-2">
-                    <Input
-                      type="number"
-                      placeholder="0.0"
-                      value={toAmount}
-                      onChange={(e) => setToAmount(e.target.value)}
-                      className="flex-1 h-16 text-2xl bg-background border-border/50"
-                    />
+                     <Input
+                       type="number"
+                       placeholder="0.0"
+                       value={toAmount}
+                       onChange={(e) => setToAmount(e.target.value)}
+                       className="flex-1 h-16 text-2xl bg-background border-border/50"
+                       readOnly
+                     />
                     <Popover open={showToTokenList} onOpenChange={setShowToTokenList}>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           className="w-40 justify-between h-16 text-left bg-background hover:bg-accent"
                         >
-                          <div className="flex items-center space-x-2">
-                            <div className="w-6 h-6 rounded-full bg-gradient-primary"></div>
-                            <span className="font-medium">{selectedToToken.symbol}</span>
-                          </div>
+                           <div className="flex items-center space-x-2">
+                             <TokenIcon symbol={selectedToToken.symbol} size={24} />
+                             <span className="font-medium">{selectedToToken.symbol}</span>
+                           </div>
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-80 p-0 bg-popover border border-border" align="start">
                         <div className="max-h-80 overflow-auto">
-                          {tokens.map((token) => (
-                            <button
-                              key={token.symbol}
-                              onClick={() => handleToTokenSelect(token)}
-                              className="w-full px-4 py-3 text-left hover:bg-accent transition-colors flex items-center justify-between group"
-                            >
-                              <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 rounded-full bg-gradient-primary"></div>
-                                <div>
-                                  <div className="font-medium">{token.symbol}</div>
-                                  <div className="text-sm text-muted-foreground">{token.name}</div>
+                           {tokens
+                             .filter(token => token.contractAddress !== selectedFromToken.contractAddress)
+                             .map((token) => (
+                             <button
+                               key={token.symbol}
+                               onClick={() => handleToTokenSelect(token)}
+                               className="w-full px-4 py-3 text-left hover:bg-accent transition-colors flex items-center justify-between group"
+                             >
+                                <div className="flex items-center space-x-3">
+                                  <TokenIcon symbol={token.symbol} size={32} />
+                                  <div>
+                                    <div className="font-medium">{token.symbol}</div>
+                                    <div className="text-sm text-muted-foreground">{token.name}</div>
+                                  </div>
                                 </div>
-                              </div>
-                              <Badge variant="secondary" className="bg-purple-500/20 text-purple-600 border-purple-500/30">
-                                <Check className="h-3 w-3" />
-                              </Badge>
-                            </button>
-                          ))}
+                               {token.contractAddress === selectedToToken.contractAddress && (
+                                 <Badge variant="secondary" className="bg-purple-500/20 text-purple-600 border-purple-500/30">
+                                   <Check className="h-3 w-3" />
+                                 </Badge>
+                               )}
+                             </button>
+                           ))}
                         </div>
                       </PopoverContent>
                     </Popover>
