@@ -301,4 +301,95 @@ export class MonadAPI {
     });
     return this.makeRequest<any[]>(url);
   }
+
+  // Get Event Logs by Topics
+  static async getEventLogsByTopics(
+    fromBlock: number = 0,
+    toBlock: number = 20000000,
+    topic0: string,
+    topic1?: string,
+    topic0_1_opr: string = 'and',
+    page: number = 1,
+    offset: number = 100
+  ): Promise<any[]> {
+    const params: Record<string, string | number> = {
+      module: 'logs',
+      action: 'getLogs',
+      fromBlock,
+      toBlock,
+      topic0,
+      page,
+      offset
+    };
+
+    if (topic1) {
+      params.topic1 = topic1;
+      params.topic0_1_opr = topic0_1_opr;
+    }
+
+    const url = this.buildUrl(params);
+    return this.makeRequest<any[]>(url);
+  }
+
+  // Get Event Logs by Address filtered by Topics
+  static async getEventLogsByAddressAndTopics(
+    address: string,
+    topic0: string,
+    topic1?: string,
+    topic0_1_opr: string = 'and',
+    fromBlock: number = 0,
+    toBlock: number = 20000000,
+    page: number = 1,
+    offset: number = 100
+  ): Promise<any[]> {
+    const params: Record<string, string | number> = {
+      module: 'logs',
+      action: 'getLogs',
+      address,
+      fromBlock,
+      toBlock,
+      topic0,
+      page,
+      offset
+    };
+
+    if (topic1) {
+      params.topic1 = topic1;
+      params.topic0_1_opr = topic0_1_opr;
+    }
+
+    const url = this.buildUrl(params);
+    return this.makeRequest<any[]>(url);
+  }
+
+  // Get token images from event logs
+  static async getTokenImagesFromLogs(contractAddress: string): Promise<string | null> {
+    try {
+      const logs = await this.getEventLogs(contractAddress, 0, 20000000, 1, 10);
+      
+      // Look for image-related data in logs
+      for (const log of logs) {
+        if (log.data && log.topics) {
+          // Check for metadata or image URLs in log data
+          const data = log.data.toLowerCase();
+          if (data.includes('http') || data.includes('ipfs') || data.includes('image')) {
+            // Extract potential image URL from hex data
+            try {
+              const decoded = Buffer.from(data.slice(2), 'hex').toString('utf8');
+              const urlMatch = decoded.match(/(https?:\/\/[^\s]+\.(png|jpg|jpeg|svg|webp))/i);
+              if (urlMatch) {
+                return urlMatch[0];
+              }
+            } catch (e) {
+              // Continue to next log if decoding fails
+            }
+          }
+        }
+      }
+      return null;
+    } catch (error) {
+      console.warn('Failed to fetch token images from logs:', error);
+      return null;
+    }
+  }
 }
