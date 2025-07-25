@@ -19,7 +19,7 @@ import { TokenBalancesGrid } from "@/components/TokenBalancesGrid";
 import { TokenIcon } from "@/components/TokenIcon";
 
 const tokens = [
-  { symbol: "MONAD", name: "Monad", contractAddress: "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701", decimals: 18 },
+  { symbol: "MONAD", name: "Monad", contractAddress: "0x34d1ae6076aee4072f54e1156d2e507dd564a355", decimals: 18 },
   { symbol: "YAKI", name: "Yaki", contractAddress: "0xfe140e1dce99be9f4f15d657cd9b7bf622270c50", decimals: 18 },
   { symbol: "GMON", name: "GMON", contractAddress: "0xaeef2f6b429cb59c9b2d7bb2141ada993e8571c3", decimals: 18 },
   { symbol: "SHMON", name: "SHMON", contractAddress: "0x3a98250f98dd388c211206983453837c8365bdc1", decimals: 18 },

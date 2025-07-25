@@ -16,6 +16,7 @@ const TokenIcon = ({ symbol, size = 24, className = "" }: TokenIconProps) => {
       'WETH': 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
       'USDC': 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png',
       'USDT': 'https://cryptologos.cc/logos/tether-usdt-logo.png',
+      'MONAD': 'https://s2.coinmarketcap.com/static/img/coins/64x64/27657.png',
     };
 
     return iconMap[symbol.toUpperCase()] || null;

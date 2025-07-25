@@ -24,6 +24,7 @@ export function Header() {
     { name: t('nav.pool'), href: "/pool" },
     { name: t('nav.stake'), href: "/stake" },
     { name: t('nav.tasks'), href: "/tasks" },
+    { name: "🐍 Snake", href: "/kardiumsnake" },
     { name: t('nav.faq'), href: "/faq" },
     { name: t('nav.privacy'), href: "/privacy" },
   ];

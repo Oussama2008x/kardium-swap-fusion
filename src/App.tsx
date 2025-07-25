@@ -16,6 +16,7 @@ import Tasks from "./pages/Tasks";
 import FAQ from "./pages/FAQ";
 import Privacy from "./pages/Privacy";
 import About from "./pages/About";
+import KardiumSnake from "./pages/KardiumSnake";
 import NotFound from "./pages/NotFound";
 import "./lib/i18n";
 
@@ -38,6 +39,7 @@ const App = () => (
                   <Route path="/pool" element={<Pool />} />
                   <Route path="/stake" element={<Stake />} />
                   <Route path="/tasks" element={<Tasks />} />
+                  <Route path="/kardiumsnake" element={<KardiumSnake />} />
                   <Route path="/faq" element={<FAQ />} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/about" element={<About />} />
