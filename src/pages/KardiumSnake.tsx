@@ -7,14 +7,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Play, Pause, RotateCcw, Trophy, Zap } from "lucide-react";
+import { Play, Pause, RotateCcw, Trophy, Zap, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
 
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 type Position = { x: number; y: number };
+type FruitType = 'apple' | 'lemon' | 'banana' | 'peach';
+
+interface Food {
+  position: Position;
+  type: FruitType;
+  emoji: string;
+  points: number;
+}
 
 interface GameState {
   snake: Position[];
-  food: Position[];
+  food: Food[];
   direction: Direction;
   score: number;
   gameOver: boolean;
@@ -61,6 +69,14 @@ export default function KardiumSnake() {
     }
   }, [gameState.score, highScore]);
 
+  // Fruit types configuration
+  const fruitTypes: Array<{type: FruitType, emoji: string, points: number}> = [
+    { type: 'apple', emoji: '🍎', points: 10 },
+    { type: 'lemon', emoji: '🍋', points: 15 },
+    { type: 'banana', emoji: '🍌', points: 20 },
+    { type: 'peach', emoji: '🍑', points: 25 }
+  ];
+
   // Generate random food position
   const generateFood = useCallback((): Position => {
     return {
@@ -74,12 +90,32 @@ export default function KardiumSnake() {
     return snake.some(segment => segment.x === pos.x && segment.y === pos.y);
   }, []);
 
+  // Save score to wallet (mock implementation)
+  const saveScoreToWallet = useCallback((score: number) => {
+    // Mock saving to connected wallet
+    localStorage.setItem('kardiumsnake-wallet-score', score.toString());
+    toast({
+      title: "💰 Score Saved!",
+      description: `Score ${score} saved to connected wallet.`,
+    });
+  }, [toast]);
+
   // Add food after successful transaction
   const addFood = useCallback(() => {
-    let newFood: Position;
+    let newFoodPosition: Position;
     do {
-      newFood = generateFood();
-    } while (isPositionOccupied(newFood, gameState.snake));
+      newFoodPosition = generateFood();
+    } while (isPositionOccupied(newFoodPosition, gameState.snake));
+
+    // Generate random fruit type
+    const randomFruit = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
+    
+    const newFood: Food = {
+      position: newFoodPosition,
+      type: randomFruit.type,
+      emoji: randomFruit.emoji,
+      points: randomFruit.points
+    };
 
     setGameState(prev => ({
       ...prev,
@@ -87,10 +123,10 @@ export default function KardiumSnake() {
     }));
 
     toast({
-      title: "🍎 Food Added!",
+      title: `${randomFruit.emoji} Food Added!`,
       description: "Transaction successful! Food appeared on the grid.",
     });
-  }, [gameState.snake, generateFood, isPositionOccupied, toast]);
+  }, [gameState.snake, generateFood, isPositionOccupied, toast, fruitTypes]);
 
   // Mock transaction execution
   const executeTx = async () => {
@@ -167,14 +203,15 @@ export default function KardiumSnake() {
       newSnake.unshift(head);
 
       // Check food collision
-      const eatenFoodIndex = prev.food.findIndex(food => food.x === head.x && food.y === head.y);
+      const eatenFoodIndex = prev.food.findIndex(food => food.position.x === head.x && food.position.y === head.y);
       let newFood = [...prev.food];
       let newScore = prev.score;
 
       if (eatenFoodIndex !== -1) {
-        // Food eaten - don't remove tail, increase score
+        // Food eaten - don't remove tail, increase score by fruit points
+        const eatenFood = prev.food[eatenFoodIndex];
         newFood.splice(eatenFoodIndex, 1);
-        newScore += 10;
+        newScore += eatenFood.points;
       } else {
         // No food eaten - remove tail
         newSnake.pop();
@@ -255,6 +292,24 @@ export default function KardiumSnake() {
   const togglePause = () => {
     setGameState(prev => ({ ...prev, isPaused: !prev.isPaused }));
   };
+
+  // Change direction handler
+  const changeDirection = (newDirection: Direction) => {
+    if (!gameState.gameRunning || gameState.gameOver) return;
+    
+    // Prevent opposite direction
+    const opposites = { UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT' };
+    if (gameState.direction !== opposites[newDirection]) {
+      setGameState(prev => ({ ...prev, direction: newDirection }));
+    }
+  };
+
+  // Save score when game ends
+  useEffect(() => {
+    if (gameState.gameOver && gameState.score > 0) {
+      saveScoreToWallet(gameState.score);
+    }
+  }, [gameState.gameOver, gameState.score, saveScoreToWallet]);
 
   return (
     <div className="min-h-screen bg-background py-8">
@@ -352,14 +407,17 @@ export default function KardiumSnake() {
 
                       {/* Food */}
                       {gameState.food.map((food, index) => (
-                        <circle
+                        <text
                           key={index}
-                          cx={food.x * (CANVAS_SIZE / GRID_SIZE) + (CANVAS_SIZE / GRID_SIZE) / 2}
-                          cy={food.y * (CANVAS_SIZE / GRID_SIZE) + (CANVAS_SIZE / GRID_SIZE) / 2}
-                          r={(CANVAS_SIZE / GRID_SIZE) / 3}
-                          fill="hsl(var(--destructive))"
-                          className="animate-pulse"
-                        />
+                          x={food.position.x * (CANVAS_SIZE / GRID_SIZE) + (CANVAS_SIZE / GRID_SIZE) / 2}
+                          y={food.position.y * (CANVAS_SIZE / GRID_SIZE) + (CANVAS_SIZE / GRID_SIZE) / 2}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fontSize="16"
+                          className="animate-pulse select-none"
+                        >
+                          {food.emoji}
+                        </text>
                       ))}
                     </svg>
 
@@ -398,15 +456,64 @@ export default function KardiumSnake() {
                 <CardHeader>
                   <CardTitle className="text-sm">Controls</CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm space-y-2">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-muted-foreground">Movement:</p>
-                      <p>↑ ↓ ← → Arrow Keys</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Pause:</p>
-                      <p>Space Bar</p>
+                <CardContent className="space-y-4">
+                  {/* Touch Controls */}
+                  <div className="grid grid-cols-3 gap-2 max-w-32 mx-auto">
+                    <div></div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-10 w-10 p-0"
+                      onClick={() => changeDirection('UP')}
+                      disabled={!gameState.gameRunning || gameState.gameOver}
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </Button>
+                    <div></div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-10 w-10 p-0"
+                      onClick={() => changeDirection('LEFT')}
+                      disabled={!gameState.gameRunning || gameState.gameOver}
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <div></div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-10 w-10 p-0"
+                      onClick={() => changeDirection('RIGHT')}
+                      disabled={!gameState.gameRunning || gameState.gameOver}
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                    
+                    <div></div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-10 w-10 p-0"
+                      onClick={() => changeDirection('DOWN')}
+                      disabled={!gameState.gameRunning || gameState.gameOver}
+                    >
+                      <ArrowDown className="h-4 w-4" />
+                    </Button>
+                    <div></div>
+                  </div>
+                  
+                  <div className="text-sm space-y-2">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-muted-foreground">Movement:</p>
+                        <p>↑ ↓ ← → Keys or Buttons</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Pause:</p>
+                        <p>Space Bar</p>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
