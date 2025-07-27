@@ -88,49 +88,6 @@ export default function Swap() {
     setSelectedTokenForInfo(token.contractAddress);
   };
 
-  // Calculate exchange rate (mock calculation for demo)
-  const calculateExchangeRate = (fromSymbol: string, toSymbol: string, amount: string) => {
-    if (!amount || !fromSymbol || !toSymbol) return "";
-    
-    // Mock exchange rates - in a real app, this would come from an API
-    const mockRates: { [key: string]: number } = {
-      'MONAD/USDC': 2.5,
-      'MONAD/USDT': 2.48,
-      'YAKI/USDC': 0.15,
-      'YAKI/USDT': 0.148,
-      'GMON/USDC': 1.2,
-      'WETH/USDC': 2400,
-      'WBTC/USDC': 43000,
-    };
-
-    const pair = `${fromSymbol}/${toSymbol}`;
-    const reversePair = `${toSymbol}/${fromSymbol}`;
-    
-    let rate = mockRates[pair];
-    if (!rate && mockRates[reversePair]) {
-      rate = 1 / mockRates[reversePair];
-    }
-    if (!rate) {
-      rate = 1; // Default 1:1 rate
-    }
-
-    const result = (parseFloat(amount) * rate).toFixed(6);
-    return result;
-  };
-
-  // Auto-calculate to amount when from amount changes
-  useEffect(() => {
-    if (fromAmount) {
-      const calculatedAmount = calculateExchangeRate(
-        selectedFromToken.symbol,
-        selectedToToken.symbol,
-        fromAmount
-      );
-      setToAmount(calculatedAmount);
-    } else {
-      setToAmount("");
-    }
-  }, [fromAmount, selectedFromToken.symbol, selectedToToken.symbol]);
 
   const handleSwapTokens = () => {
     const tempToken = selectedFromToken;
@@ -249,7 +206,6 @@ export default function Swap() {
                        value={toAmount}
                        onChange={(e) => setToAmount(e.target.value)}
                        className="flex-1 h-16 text-2xl bg-background border-border/50"
-                       readOnly
                      />
                     <Popover open={showToTokenList} onOpenChange={setShowToTokenList}>
                       <PopoverTrigger asChild>
@@ -299,7 +255,7 @@ export default function Swap() {
                 {/* Swap Execute Button */}
                 <Button 
                   className="w-full h-14 text-lg font-semibold bg-gradient-primary hover:opacity-90 transition-opacity"
-                  disabled={!fromAmount || !toAmount}
+                  disabled={!fromAmount}
                 >
                   {t('swap.execute', 'Swap')}
                 </Button>
