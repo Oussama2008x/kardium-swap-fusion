@@ -17,10 +17,11 @@ import { WalletBalances } from "@/components/WalletBalances";
 import { TokenInfoCard } from "@/components/TokenInfoCard";
 import { TokenBalancesGrid } from "@/components/TokenBalancesGrid";
 import { TokenIcon } from "@/components/TokenIcon";
-import { TokenApproval } from "@/components/TokenApproval";
+import { useMonadContract } from "@/hooks/useMonadContract";
+import { useSpecificTokenBalances } from "@/hooks/useMonadAPI";
 
 const tokens = [
-  { symbol: "MONAD", name: "Monad", contractAddress: "0x34d1ae6076aee4072f54e1156d2e507dd564a355", decimals: 18 },
+  { symbol: "MONAD", name: "Monad", contractAddress: "0xcC50EAb18CB032a0AC5788327ef9c152ac03dba9", decimals: 18 },
   { symbol: "YAKI", name: "Yaki", contractAddress: "0xfe140e1dce99be9f4f15d657cd9b7bf622270c50", decimals: 18 },
   { symbol: "GMON", name: "GMON", contractAddress: "0xaeef2f6b429cb59c9b2d7bb2141ada993e8571c3", decimals: 18 },
   { symbol: "SHMON", name: "SHMON", contractAddress: "0x3a98250f98dd388c211206983453837c8365bdc1", decimals: 18 },
@@ -61,6 +62,7 @@ const ErrorFallback = ({ message }: { message: string }) => (
 
 export default function Swap() {
   const { t } = useTranslation();
+  const { balance: monadBalance } = useMonadContract();
   const [selectedFromToken, setSelectedFromToken] = useState(tokens[0]);
   const [selectedToToken, setSelectedToToken] = useState(tokens[1]);
   const [fromAmount, setFromAmount] = useState("");
@@ -68,6 +70,12 @@ export default function Swap() {
   const [showFromTokenList, setShowFromTokenList] = useState(false);
   const [showToTokenList, setShowToTokenList] = useState(false);
   const [selectedTokenForInfo, setSelectedTokenForInfo] = useState<string | null>(tokens[0].contractAddress);
+  
+  // Get token balances for the selected to token
+  const { balances: tokenBalances } = useSpecificTokenBalances(
+    null, // We'll handle address in useMonadContract
+    [selectedToToken.contractAddress]
+  );
 
   const handleFromTokenSelect = (token: typeof tokens[0]) => {
     if (token.contractAddress === selectedToToken.contractAddress) {
@@ -137,8 +145,8 @@ export default function Swap() {
                       type="number"
                       placeholder="0.0"
                       value={fromAmount}
-                      onChange={(e) => setFromAmount(e.target.value)}
-                      className="flex-1 h-16 text-2xl bg-background border-border/50"
+                      readOnly
+                      className="flex-1 h-16 text-2xl bg-muted border-border/50 cursor-not-allowed"
                     />
                     <Popover open={showFromTokenList} onOpenChange={setShowFromTokenList}>
                       <PopoverTrigger asChild>
@@ -197,9 +205,27 @@ export default function Swap() {
 
                 {/* To Token Section */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">
-                    {t('swap.to', 'To')}
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-medium text-muted-foreground">
+                      {t('swap.to', 'To')}
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        Balance: {selectedToToken.symbol === "MONAD" ? monadBalance : (tokenBalances[selectedToToken.contractAddress] || "0")}
+                      </span>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-6 px-2 text-xs"
+                        onClick={() => {
+                          const balance = selectedToToken.symbol === "MONAD" ? monadBalance : (tokenBalances[selectedToToken.contractAddress] || "0");
+                          setToAmount(balance);
+                        }}
+                      >
+                        MAX
+                      </Button>
+                    </div>
+                  </div>
                   <div className="flex space-x-2">
                      <Input
                        type="number"
@@ -271,8 +297,6 @@ export default function Swap() {
               />
             )}
 
-            {/* Token Approval Component */}
-            <TokenApproval />
           </div>
 
           {/* Sidebar */}
