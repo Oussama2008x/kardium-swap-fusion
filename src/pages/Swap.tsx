@@ -17,6 +17,7 @@ import { WalletBalances } from "@/components/WalletBalances";
 import { TokenInfoCard } from "@/components/TokenInfoCard";
 import { TokenBalancesGrid } from "@/components/TokenBalancesGrid";
 import { TokenIcon } from "@/components/TokenIcon";
+import { TokenApproval } from "@/components/TokenApproval";
 
 const tokens = [
   { symbol: "MONAD", name: "Monad", contractAddress: "0x34d1ae6076aee4072f54e1156d2e507dd564a355", decimals: 18 },
@@ -269,6 +270,9 @@ export default function Swap() {
                 className="bg-gradient-card shadow-card border-border/50"
               />
             )}
+
+            {/* Token Approval Component */}
+            <TokenApproval />
           </div>
 
           {/* Sidebar */}
